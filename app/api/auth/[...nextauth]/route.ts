@@ -7,7 +7,7 @@ interface SessionUser {
   name?: string | null;
   email?: string | null;
   image?: string | null;
-  id: string;
+  id?: string; // id should also be optional initially
 }
 
 const handler = NextAuth({
@@ -19,7 +19,7 @@ const handler = NextAuth({
   ],
 
   callbacks: {
-    async session({ session }: { session: { user: SessionUser } }) {
+    async session({ session }: { session: { user?: SessionUser } }) {
       try {
         if (session?.user?.email) {
           await connectToDb();
