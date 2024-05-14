@@ -22,6 +22,9 @@ const PromptCard = ({
     setTimeout(() => setCopied(""), 3000);
   };
 
+  const userId =
+    session?.user && "id" in session.user ? session.user.id : "defaultUserId";
+
   return (
     <div className="prompt_card">
       <div className="flex justify-between items-start gap-5">
@@ -66,7 +69,7 @@ const PromptCard = ({
         #{post.tag}
       </p>
       {post.creator &&
-        session?.user.id === post.creator._id &&
+        userId === post.creator._id &&
         pathName === "/profile" && (
           <div className="mt-5 flex-center gap-4 border-t border-gray-100 pt-3">
             <p

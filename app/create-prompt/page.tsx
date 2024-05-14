@@ -15,6 +15,8 @@ const CreatePrompt = () => {
     tag: "",
   });
 
+  const userId =
+    session?.user && "id" in session.user ? session.user.id : "defaultUserId";
   const createPrompt = async (e: any) => {
     e.preventDefault();
     setSubmitting(true);
@@ -23,7 +25,7 @@ const CreatePrompt = () => {
         method: "POST",
         body: JSON.stringify({
           prompt: post.prompt,
-          userId: session?.user.id,
+          userId: userId,
           tag: post.tag,
         }),
       });

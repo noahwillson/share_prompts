@@ -11,11 +11,12 @@ export const connectToDb = async () => {
   }
 
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      dbName: "promptopia",
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(
+      process.env.MONGODB_URI ?? "default_connection_uri",
+      {
+        dbName: "promptopia",
+      }
+    );
     isConnected = true;
     console.log("MongoDB connected");
   } catch (error) {

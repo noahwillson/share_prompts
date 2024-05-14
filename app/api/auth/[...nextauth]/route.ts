@@ -1,13 +1,25 @@
-import NextAuth from "next-auth";
+import NextAuth, { DefaultSession } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { connectToDb } from "@/utils/database";
 import User from "@/models/user";
 
-interface SessionUser {
+// Define the structure of the profile object
+interface Profile {
+  name?: string | null;
+  email?: string | null;
+  picture?: string | null;
+}
+
+// Explicitly define the structure of the user object
+interface NextAuthUser {
   name?: string | null;
   email?: string | null;
   image?: string | null;
-  id?: string; // id should also be optional initially
+  id?: string | null; // id should also be optional initially
+}
+
+interface Session extends DefaultSession {
+  user?: NextAuthUser;
 }
 
 const handler = NextAuth({
@@ -19,12 +31,12 @@ const handler = NextAuth({
   ],
 
   callbacks: {
-    async session({ session }: { session: { user?: SessionUser } }) {
+    async session({ session }: { session: Session }) {
       try {
-        if (session && session.user && session.user.email) {
+        if (session.user && session.user.email) {
           await connectToDb();
           const sessionUser = await User.findOne({ email: session.user.email });
-          if (sessionUser && session.user) {
+          if (sessionUser) {
             session.user.id = sessionUser._id.toString();
           }
         }
@@ -34,17 +46,26 @@ const handler = NextAuth({
       return session;
     },
 
-    async signIn({ profile }) {
+    async signIn({ profile }: { profile?: Profile }) {
+      // Make profile optional
       try {
+        if (!profile) {
+          // Handle the case where profile is undefined
+          throw new Error("Profile is undefined");
+        }
+
         await connectToDb();
 
         const userExists = await User.findOne({ email: profile.email });
 
         if (!userExists) {
+          // Use optional chaining to safely access profile?.picture
+          const image = profile?.picture ?? "default-image-url";
+
           await User.create({
             email: profile.email,
-            username: profile.name.replace(/\s+/g, "").toLowerCase(),
-            image: profile.picture,
+            username: profile.name?.replace(/\s+/g, "").toLowerCase(),
+            image: image,
           });
         }
 
