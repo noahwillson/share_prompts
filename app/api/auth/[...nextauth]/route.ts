@@ -21,10 +21,10 @@ const handler = NextAuth({
   callbacks: {
     async session({ session }: { session: { user?: SessionUser } }) {
       try {
-        if (session?.user?.email) {
+        if (session && session.user && session.user.email) {
           await connectToDb();
           const sessionUser = await User.findOne({ email: session.user.email });
-          if (sessionUser) {
+          if (sessionUser && session.user) {
             session.user.id = sessionUser._id.toString();
           }
         }
